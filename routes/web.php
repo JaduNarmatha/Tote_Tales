@@ -15,6 +15,7 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\CustomerDashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\CategoryController;
 /*
 |--------------------------------------------------------------------------
 | Public Routes
@@ -33,11 +34,10 @@ Route::get('/about', function () {
 })->name('about');
 Route::get('/about', [CustomerController::class, 'about'])->name('about');
 
-/*
-|--------------------------------------------------------------------------
-| Authentication Routes
-|--------------------------------------------------------------------------
-*/
+Route::middleware(['auth'])->group(function () {
+    Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+    Route::post('/cart/add', [CategoryController::class, 'addToCart'])->name('cart.add');
+});
 
 // Login
 Route::get('/login', function () {
