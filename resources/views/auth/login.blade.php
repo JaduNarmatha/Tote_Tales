@@ -1,48 +1,90 @@
-<x-guest-layout>
-    <x-authentication-card>
-        <x-slot name="logo">
-            <x-authentication-card-logo />
-        </x-slot>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Tote_Tales</title>
+ {{-- Tailwind CSS --}}
+    <link rel="stylesheet" href="{{ asset('src/output.css') }}">
+</head>
+ <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{{ asset('css/output.css') }}">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
 
-        <x-validation-errors class="mb-4" />
+<body class="bg-gradient-to-br from-green-50 via-white to-yellow-50 flex items-center justify-center min-h-screen font-sans">
 
-        @session('status')
-            <div class="mb-4 font-medium text-sm text-green-600">
-                {{ $value }}
+    <div class="bg-white/90 p-8 rounded-3xl shadow-2xl w-96 backdrop-blur-md border border-gray-100">
+
+        <!-- Logo and Welcome -->
+        <div class="flex flex-col items-center mb-6">
+            <img src="{{ asset('img/logo.png') }}" alt="Tote_Tales Logo" class="w-16 h-16 mb-3">
+            <h1 class="text-3xl font-extrabold text-green-700">Tote_Tales</h1>
+            <p class="text-gray-600 text-sm mt-2">
+                Welcome back! Please log in to continue.
+            </p>
+        </div>
+
+        {{-- Success Message --}}
+        @if (session('success'))
+            <p class="text-green-500 text-center mb-4">
+                {{ session('success') }}
+            </p>
+        @endif
+
+        {{-- Error Message --}}
+        @if (session('error'))
+            <p class="text-red-500 text-center mb-4">
+                {{ session('error') }}
+            </p>
+        @endif
+
+        {{-- Validation Errors --}}
+        @if ($errors->any())
+            <div class="text-red-500 text-center mb-4">
+                @foreach ($errors->all() as $error)
+                    <p>{{ $error }}</p>
+                @endforeach
             </div>
-        @endsession
+        @endif
 
-        <form method="POST" action="{{ route('login') }}">
+        <!-- Login Form -->
+        <form action="{{ route('login.store') }}" method="POST" class="space-y-4">
             @csrf
 
-            <div>
-                <x-label for="email" value="{{ __('Email') }}" />
-                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            </div>
+            <input
+                type="email"
+                name="email"
+                value="{{ old('email') }}"
+                placeholder="Email"
+                required
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none transition">
 
-            <div class="mt-4">
-                <x-label for="password" value="{{ __('Password') }}" />
-                <x-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="current-password" />
-            </div>
+            <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                required
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none transition">
 
-            <div class="block mt-4">
-                <label for="remember_me" class="flex items-center">
-                    <x-checkbox id="remember_me" name="remember" />
-                    <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-                </label>
-            </div>
-
-            <div class="flex items-center justify-end mt-4">
-                @if (Route::has('password.request'))
-                    <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                        {{ __('Forgot your password?') }}
-                    </a>
-                @endif
-
-                <x-button class="ms-4">
-                    {{ __('Log in') }}
-                </x-button>
-            </div>
+            <button
+                type="submit"
+                class="w-full bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition">
+                Login
+            </button>
         </form>
-    </x-authentication-card>
-</x-guest-layout>
+
+        <!-- Links -->
+        <div class="mt-6 text-center text-sm text-gray-600">
+            <a href="{{ route('register') }}" class="text-green-700 font-medium hover:underline">
+                Create Account
+            </a>
+            •
+            <a href="{{ route('password.request') }}" class="text-green-700 font-medium hover:underline">
+                Forgot Password?
+            </a>
+        </div>
+
+    </div>
+
+</body>
+</html>
