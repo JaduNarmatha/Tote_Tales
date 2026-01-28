@@ -16,12 +16,15 @@ use App\Http\Controllers\CustomerDashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CategoryController;
-/*
-|--------------------------------------------------------------------------
-| Public Routes
-|--------------------------------------------------------------------------
-*/
+use App\Http\Controllers\CheckoutController;
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.place');
+});
+Route::get('/contact', function () {
+    return view('contact.index');
+})->name('contact');
 // Welcome page
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 Route::get('/', [HomeController::class, 'index'])->name('home');
