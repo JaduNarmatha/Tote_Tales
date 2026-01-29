@@ -73,7 +73,7 @@
 
             <button
                 type="submit"
-                class="w-full bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-white p-3 rounded-xl font-bold hover:from-green-400 hover:to-yellow-400 transition transform hover:scale-105">
+                class="w-full bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-black p-3 rounded-xl font-bold hover:from-green-400 hover:to-yellow-400 transition transform hover:scale-105">
                 Register
             </button>
         </form>

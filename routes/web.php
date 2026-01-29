@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 | Controllers
 |--------------------------------------------------------------------------
 */
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -17,46 +18,40 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\AdminController;
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-    Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.place');
-});
-Route::get('/contact', function () {
-    return view('contact.index');
-})->name('contact');
+/*
+|--------------------------------------------------------------------------
+| Public Routes
+|--------------------------------------------------------------------------
+*/
+
 // Welcome page
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
-Route::get('/', [HomeController::class, 'index'])->name('home');
+
 // Visitor mode
 Route::get('/visitor', [WelcomeController::class, 'visitor'])->name('visitor');
 
-// Static pages (example)
-Route::get('/about', function () {
-    return view('about');
-})->name('about');
+// Contact page
+Route::get('/contact', function () {
+    return view('contact.index');
+})->name('contact');
+
+// About page
 Route::get('/about', [CustomerController::class, 'about'])->name('about');
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
-    Route::post('/cart/add', [CategoryController::class, 'addToCart'])->name('cart.add');
-});
-
-// Login
+// Auth pages
 Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
 
-Route::post('/login', [LoginController::class, 'store'])
-    ->name('login.store');
+Route::post('/login', [LoginController::class, 'store'])->name('login.store');
 
-// Register
 Route::get('/register', function () {
     return view('auth.register');
 })->name('register');
 
-Route::post('/register', [RegisterController::class, 'store'])
-    ->name('register.store');
+Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
 
 // Forgot Password (custom)
 Route::get('/forgot-password', function () {
@@ -67,33 +62,49 @@ Route::post('/forgot-password', [ForgotPasswordController::class, 'update'])
     ->name('password.update.custom');
 
 // Logout
-Route::post('/logout', [LogoutController::class, 'logout'])
-    ->name('logout');
+Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
 
 /*
 |--------------------------------------------------------------------------
-| Customer Routes (Authenticated Users)
+| Authenticated Routes (Customer & Admin)
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
 
-    Route::get('/home', function () {
-        return view('index'); // customer home page
-    })->name('home');
+    // Customer Dashboard / Home
+    Route::get('/home', [HomeController::class, 'index'])->name('home');
+
+    // Customer dashboard alternative route
+    Route::get('/customer/dashboard', [CustomerDashboardController::class, 'index'])
+        ->name('customer.dashboard');
+
+    // Categories & Cart
+    Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+    Route::post('/cart/add', [CategoryController::class, 'addToCart'])->name('cart.add');
+
+   
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/admin', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+
+    Route::get('/admin/product/add', [AdminController::class, 'addProductPage'])
+        ->name('admin.add.form');
+    Route::post('/admin/product/add', [AdminController::class, 'addProduct'])->name('admin.add');
 
 });
 
 /*
 |--------------------------------------------------------------------------
-| Admin Routes
+| Admin Dashboard Blade (optional static view)
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
-
     Route::get('/admin/dashboard', function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
-
 });
 
 /*
@@ -106,14 +117,19 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
-
 });
 
+/*
+|--------------------------------------------------------------------------
+| Product Management (Authenticated)
+|--------------------------------------------------------------------------
+*/
 Route::middleware(['auth'])->group(function () {
-    Route::get('/customer/dashboard', [CustomerDashboardController::class, 'index'])
-        ->name('customer.dashboard');
+    Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+    Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+    Route::put('/products/{id}', [ProductController::class, 'update'])->name('products.update');
+    Route::delete('/products/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
 });

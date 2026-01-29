@@ -4,27 +4,46 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Order;
-use App\Models\Product;
-use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
+    /**
+     * HomeController constructor.
+     * Apply auth middleware to ensure only logged-in users can access.
+     */
+   
+
+    /**
+     * Show the customer dashboard / home page.
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
-        $customer = auth()->user(); // If using Laravel auth
+        // Get authenticated customer
+        $customer = Auth::user();
 
-        // Fetch last 5 orders for the customer
-        $customerOrders = $customer ? Order::with('items.product')
-                                    ->where('customer_id', $customer->id)
-                                    ->orderBy('created_at', 'desc')
-                                    ->take(5)
-                                    ->get()
-                                    : [];
+        // Fetch last 5 orders with their products
+        // Assuming Order model has 'items' relationship with 'product'
+        $customerOrders = Order::with('items.product')
+            ->where('user_id', $customer->id)
+            ->latest()
+            ->take(5)
+            ->get();
 
-        // Fetch stats
-        $totalOrders = $customer ? Order::where('customer_id', $customer->id)->count() : 0;
-        $totalSpent  = $customer ? Order::where('customer_id', $customer->id)->sum('total_amount') : 0;
+        // Total number of orders
+        $totalOrders = Order::where('user_id', $customer->id)->count();
 
-        return view('home', compact('customer', 'customerOrders', 'totalOrders', 'totalSpent'));
+        // Total amount spent
+        $totalSpent = Order::where('user_id', $customer->id)->sum('total_price');
+
+        // Pass all data to Blade view
+        return view('customer.index', compact(
+            'customer',
+            'customerOrders',
+            'totalOrders',
+            'totalSpent'
+        ));
     }
 }
