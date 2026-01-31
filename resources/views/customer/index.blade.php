@@ -1,5 +1,5 @@
 {{-- resources/views/customer/index.blade.php --}}
-@extends('layouts.app') {{-- Optional: if you have a layout --}}
+@extends('layouts.app')
 
 @section('title', 'Tote_Tales - Carry Your Story')
 
@@ -13,16 +13,21 @@
     <nav class="flex space-x-6 text-gray-700 font-medium">
       <a href="{{ route('welcome') }}" class="hover:text-orange-600 transition-colors">Home</a>
       <a href="{{ route('about') }}" class="hover:text-orange-600 transition-colors">About</a>
-      <a href="{{ route('category') }}" class="hover:text-orange-600 transition-colors">Collection</a>
-      <a href="{{ route('contact') }}" class="hover:text-orange-600 transition-colors">Contact</a>
+ <a href="{{ route('categories.index') }}" class="hover:text-orange-500">Collection</a>
+
+
+ <a href="{{ route('contact') }}" class="hover:text-orange-600 transition-colors">Contact</a>
     </nav>
     <div class="flex items-center space-x-4">
       <span class="text-gray-700 font-medium">Hi, {{ Auth::user()->name ?? 'Guest' }}</span>
       @auth
-      <a href="{{ route('logout') }}" class="text-red-500 hover:underline">Logout</a>
+      <form action="{{ route('logout') }}" method="POST" class="inline">
+        @csrf
+        <button type="submit" class="text-red-500 hover:underline">Logout</button>
+      </form>
       <a href="{{ route('cart') }}" class="bg-orange-500 text-white px-4 py-1 rounded-full text-sm bounce-hover">Cart 👜</a>
       @else
-      <a href="{{ route('customer.login') }}" class="text-green-600 font-semibold">Login</a>
+      <a href="{{ route('login') }}" class="text-green-600 font-semibold">Login</a>
       @endauth
     </div>
   </div>
@@ -35,7 +40,6 @@
       <h2 class="text-4xl font-extrabold text-orange-600 mb-4">Carry Your Story</h2>
       <p class="text-gray-700 mb-6">Discover our collection of beautifully handcrafted, eco-friendly tote bags. Each bag tells a story and helps protect our planet, one carry at a time.</p>
       <div class="flex space-x-4">
-        <a href="{{ route('category') }}" class="bg-green-600 text-white px-6 py-3 rounded-lg shadow hover:bg-green-700 scale-hover">Shop Now</a>
         <a href="{{ route('about') }}" class="border border-green-600 text-green-600 px-6 py-3 rounded-lg hover:bg-green-100 scale-hover">Learn More</a>
       </div>
     </div>
@@ -115,23 +119,4 @@
       <ul class="space-y-1">
         <li><a href="{{ route('welcome') }}" class="hover:text-orange-500 transition-colors">Home</a></li>
         <li><a href="{{ route('about') }}" class="hover:text-orange-500 transition-colors">About Us</a></li>
-        <li><a href="{{ route('category') }}" class="hover:text-orange-500 transition-colors">Our Collection</a></li>
-        <li><a href="{{ route('contact') }}" class="hover:text-orange-500 transition-colors">Contact</a></li>
-      </ul>
-    </div>
-    <div>
-      <h3 class="font-semibold text-white mb-2">Our Promise</h3>
-      <ul class="space-y-1">
-        <li>✔ Eco-friendly materials</li>
-        <li>✔ Ethical production</li>
-        <li>✔ Handcrafted quality</li>
-        <li>✔ Unique designs</li>
-      </ul>
-    </div>
-  </div>
-  <div class="text-center border-t border-gray-700 py-4 text-sm">
-    © {{ date('Y') }} Tote_Tales. All rights reserved.
-  </div>
-</footer>
-</body>
-@endsection
+        <li><a href="{{ route('categories.index') }}" class="hover:text

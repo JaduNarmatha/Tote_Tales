@@ -8,6 +8,6 @@ class CustomerController extends Controller
 {
      public function about()
     {
-        return view('about'); // resources/views/about.blade.php
+        return view('visitor/home'); // resources/views/about.blade.php
     }
 }

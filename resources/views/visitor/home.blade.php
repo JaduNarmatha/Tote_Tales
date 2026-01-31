@@ -6,26 +6,12 @@
 @section('content')
 <body class="bg-gradient-to-r from-yellow-50 to-green-50 font-sans">
 
-<!-- Navbar -->
-<header class="bg-gradient-to-r from-orange-100 to-yellow-200 shadow-md fade-in-up">
-  <div class="max-w-7xl mx-auto flex justify-between items-center py-4 px-6">
-    <h1 class="text-2xl font-extrabold text-orange-600 tracking-wide">Tote_Tales</h1>
-    <nav class="flex space-x-6 text-gray-700 font-medium">
-      <a href="{{ route('visitor.home') }}" class="hover:text-orange-600 transition-colors">Home</a>
-      <a href="{{ route('category') }}" class="hover:text-orange-600 transition-colors">Collection</a>
-      <a href="{{ route('contact') }}" class="hover:text-orange-600 transition-colors">Contact</a>
-    </nav>
-    <div class="flex items-center space-x-4">
-      <a href="{{ route('register') }}" class="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition-colors">Create Account</a>
-      <a href="{{ route('login') }}" class="bg-orange-500 text-white px-4 py-2 rounded-full hover:bg-orange-600 transition-colors">Login</a>
-    </div>
-  </div>
-</header>
+
 
 <!-- Hero Section -->
 <section class="py-20 fade-in-up">
   <div class="max-w-7xl mx-auto grid md:grid-cols-2 items-center px-6 gap-10">
-    <div>
+    
       <h2 class="text-5xl font-extrabold text-orange-600 mb-6">Welcome, {{ Auth::user()->name ?? 'USER' }}!</h2>
       <p class="text-gray-700 mb-6 text-lg">Discover our handcrafted eco-friendly tote bags. Each bag carries a story — make it yours today!</p>
       <a href="{{ route('register') }}" class="bg-green-600 text-white px-6 py-3 rounded-lg shadow hover:bg-green-700 scale-hover text-lg font-semibold">Create Your Account</a>
@@ -48,8 +34,7 @@
 
 <!-- Flash Sale Section -->
 <section class="max-w-7xl mx-auto px-6 py-16 bg-gradient-to-r from-yellow-50 via-orange-50 to-pink-50 rounded-3xl shadow-lg fade-in-up">
-  <div class="grid md:grid-cols-3 items-center gap-6">
-    <div class="flex justify-center md:justify-start">
+   <div class="flex justify-center md:justify-start">
       <img src="{{ asset('img/12.jpg') }}" alt="Flash Bag 1" class="w-32 h-32 object-cover rounded-xl shadow-lg hover:scale-105 transition-transform duration-300">
     </div>
     <div class="flex flex-col justify-center text-center space-y-6">
@@ -73,9 +58,7 @@
           <span>Seconds</span>
         </div>
       </div>
-      <a href="{{ route('category') }}" class="bg-green-600 text-white px-8 py-3 rounded-full shadow-lg hover:bg-green-700 hover:scale-105 transition transform text-lg font-semibold mt-4 inline-block">
-        Shop Now
-      </a>
+      
     </div>
     <div class="flex justify-center md:justify-end">
       <img src="{{ asset('img/9.jpg') }}" alt="Flash Bag 2" class="w-32 h-32 object-cover rounded-xl shadow-lg hover:scale-105 transition-transform duration-300">
@@ -117,12 +100,7 @@
     </div>
     <div>
       <h3 class="font-semibold text-white mb-2">Quick Links</h3>
-      <ul class="space-y-1">
-        <li><a href="{{ route('visitor.home') }}" class="hover:text-orange-500 transition-colors">Home</a></li>
-        <li><a href="{{ route('about') }}" class="hover:text-orange-500 transition-colors">About Us</a></li>
-        <li><a href="{{ route('category') }}" class="hover:text-orange-500 transition-colors">Our Collection</a></li>
-        <li><a href="{{ route('contact') }}" class="hover:text-orange-500 transition-colors">Contact</a></li>
-      </ul>
+      
     </div>
     <div>
       <h3 class="font-semibold text-white mb-2">Our Promise</h3>

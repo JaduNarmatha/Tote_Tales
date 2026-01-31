@@ -19,28 +19,29 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\CartController;
+
+
+Route::get('/categories', [CategoryController::class, 'index'])->name('category');
+
+
 
 /*
 |--------------------------------------------------------------------------
-| Public Routes
+| Public Routes (NO AUTH)
 |--------------------------------------------------------------------------
 */
-
-// Welcome page
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 
-// Visitor mode
 Route::get('/visitor', [WelcomeController::class, 'visitor'])->name('visitor');
 
-// Contact page
 Route::get('/contact', function () {
     return view('contact.index');
 })->name('contact');
 
-// About page
 Route::get('/about', [CustomerController::class, 'about'])->name('about');
 
-// Auth pages
+/* Auth Pages */
 Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
@@ -53,7 +54,6 @@ Route::get('/register', function () {
 
 Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
 
-// Forgot Password (custom)
 Route::get('/forgot-password', function () {
     return view('auth.forgot-password');
 })->name('password.request');
@@ -61,65 +61,49 @@ Route::get('/forgot-password', function () {
 Route::post('/forgot-password', [ForgotPasswordController::class, 'update'])
     ->name('password.update.custom');
 
-// Logout
-Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
+/*
+|--------------------------------------------------------------------------
+| Category / Collection (PUBLIC)
+|--------------------------------------------------------------------------
+*/
+Route::get('/categories', [CategoryController::class, 'index'])
+    ->name('categories.index');
 
 /*
 |--------------------------------------------------------------------------
-| Authenticated Routes (Customer & Admin)
+| Authenticated Routes (Customer)
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
 
-    // Customer Dashboard / Home
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 
-    // Customer dashboard alternative route
     Route::get('/customer/dashboard', [CustomerDashboardController::class, 'index'])
         ->name('customer.dashboard');
 
-    // Categories & Cart
-    Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
-    Route::post('/cart/add', [CategoryController::class, 'addToCart'])->name('cart.add');
+    /* Cart */
+    Route::get('/cart', [CartController::class, 'index'])->name('cart');
+    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
 
-   
-    /*
-    |--------------------------------------------------------------------------
-    | Admin Routes
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/admin', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-
-    Route::get('/admin/product/add', [AdminController::class, 'addProductPage'])
-        ->name('admin.add.form');
-    Route::post('/admin/product/add', [AdminController::class, 'addProduct'])->name('admin.add');
-
+    /* Logout */
+    Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
 });
 
 /*
 |--------------------------------------------------------------------------
-| Admin Dashboard Blade (optional static view)
+| Admin Routes (Authenticated)
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
-    Route::get('/admin/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
-});
 
-/*
-|--------------------------------------------------------------------------
-| Jetstream / Sanctum Dashboard (Optional)
-|--------------------------------------------------------------------------
-*/
-Route::middleware([
-    'auth:sanctum',
-    config('jetstream.auth_session'),
-    'verified',
-])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/admin', [AdminController::class, 'dashboard'])
+        ->name('admin.dashboard');
+
+    Route::get('/admin/product/add', [AdminController::class, 'addProductPage'])
+        ->name('admin.add.form');
+
+    Route::post('/admin/product/add', [AdminController::class, 'addProduct'])
+        ->name('admin.add');
 });
 
 /*
@@ -132,4 +116,19 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/products', [ProductController::class, 'store'])->name('products.store');
     Route::put('/products/{id}', [ProductController::class, 'update'])->name('products.update');
     Route::delete('/products/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Jetstream Dashboard (Optional)
+|--------------------------------------------------------------------------
+*/
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
 });
