@@ -60,6 +60,13 @@ Route::get('/forgot-password', function () {
 
 Route::post('/forgot-password', [ForgotPasswordController::class, 'update'])
     ->name('password.update.custom');
+Route::get('/home', function () {
+    return view('customer.home');
+})->name('home')->middleware('auth');
+
+Route::get('/admin/dashboard', function () {
+    return view('admin.dashboard');
+})->name('admin.dashboard')->middleware(['auth', 'admin']);
 
 /*
 |--------------------------------------------------------------------------

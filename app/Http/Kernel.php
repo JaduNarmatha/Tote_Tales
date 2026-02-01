@@ -11,6 +11,7 @@ class Kernel extends HttpKernel
             \Illuminate\Cookie\Middleware\EncryptCookies::class,
             \Illuminate\Session\Middleware\StartSession::class,
         ],
+'admin' => \App\Http\Middleware\AdminMiddleware::class,
 
         'api' => [
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,

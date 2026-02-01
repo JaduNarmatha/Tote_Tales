@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 class LoginController extends Controller
 {
     /**
-     * Show the login page
+     * Show login page
      */
     public function create()
     {
@@ -21,21 +21,21 @@ class LoginController extends Controller
      */
     public function store(Request $request)
     {
-        // Validate input
+        // Validate login data
         $credentials = $request->validate([
-            'email'    => 'required|email',
-            'password' => 'required',
+            'email'    => ['required', 'email'],
+            'password' => ['required'],
         ]);
 
-        // Attempt login
+        // Attempt authentication
         if (Auth::attempt($credentials)) {
 
-            // Prevent session fixation
+            // Regenerate session (security)
             $request->session()->regenerate();
 
             $user = Auth::user();
 
-            // Store extra session data (optional but useful)
+            // Optional: store session values
             session([
                 'user_id'    => $user->id,
                 'user_name'  => $user->name,
@@ -43,18 +43,18 @@ class LoginController extends Controller
                 'role'       => $user->role,
             ]);
 
-            // Role-based redirect
+            // 🔐 Role-based redirect
             if ($user->role === 'admin') {
                 return redirect()->route('admin.dashboard')
                     ->with('success', 'Welcome Admin!');
             }
 
-            // Customer redirect
+            // 👤 Customer redirect
             return redirect()->route('home')
                 ->with('success', 'Welcome back to Tote_Tales!');
         }
 
-        // Login failed
+        // ❌ Login failed
         return back()
             ->withInput()
             ->with('error', 'Invalid email or password!');
@@ -67,7 +67,7 @@ class LoginController extends Controller
     {
         Auth::logout();
 
-        // Clear session
+        // Destroy session
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
