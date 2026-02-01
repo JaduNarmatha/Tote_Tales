@@ -8,70 +8,45 @@ use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
-    /**
-     * Show login page
-     */
+    // Show login form
     public function create()
     {
-        return view('auth.login');
+        return view('auth.login'); // make sure this blade exists
     }
 
-    /**
-     * Handle login request
-     */
-    public function store(Request $request)
+    // Handle login
+    public function login(Request $request)
     {
-        // Validate login data
-        $credentials = $request->validate([
-            'email'    => ['required', 'email'],
-            'password' => ['required'],
+        $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required',
         ]);
 
-        // Attempt authentication
-        if (Auth::attempt($credentials)) {
+        $credentials = $request->only('email', 'password');
 
-            // Regenerate session (security)
-            $request->session()->regenerate();
-
-            $user = Auth::user();
-
-            // Optional: store session values
-            session([
-                'user_id'    => $user->id,
-                'user_name'  => $user->name,
-                'user_email' => $user->email,
-                'role'       => $user->role,
-            ]);
-
-            // 🔐 Role-based redirect
-            if ($user->role === 'admin') {
-                return redirect()->route('admin.dashboard')
-                    ->with('success', 'Welcome Admin!');
-            }
-
-            // 👤 Customer redirect
-            return redirect()->route('home')
-                ->with('success', 'Welcome back to Tote_Tales!');
+        if (!Auth::attempt($credentials)) {
+            return redirect()->back()->withErrors(['email' => 'Invalid credentials'])->withInput();
         }
 
-        // ❌ Login failed
-        return back()
-            ->withInput()
-            ->with('error', 'Invalid email or password!');
+        $request->session()->regenerate();
+
+        $user = Auth::user();
+
+        // Redirect based on role
+        if ($user->role === 'admin') {
+            return redirect()->route('admin.dashboard');
+        } else {
+            return redirect()->route('home');
+        }
     }
 
-    /**
-     * Logout user
-     */
+    // Handle logout
     public function logout(Request $request)
     {
         Auth::logout();
-
-        // Destroy session
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login')
-            ->with('success', 'Logged out successfully.');
+        return redirect('/login');
     }
 }

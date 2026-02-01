@@ -4,85 +4,69 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
-use App\Models\Customer;
+use App\Models\Category;
+use App\Models\User;
 use App\Models\Order;
+use App\Models\OrderItem;
 use Illuminate\Support\Facades\Session;
 
 class AdminController extends Controller
 {
-    protected $productModel;
-    protected $customerModel;
-    protected $orderModel;
-
-    public function __construct()
-    {
-        // Optional: protect all routes
-        $this->middleware('auth');
-
-        $this->productModel = new Product();
-        $this->customerModel = new Customer();
-        $this->orderModel = new Order();
-    }
-
-    // ================= DASHBOARD =================
+    // Dashboard
     public function dashboard()
     {
-        $products = Product::all();
-        $customers = Customer::all();
-        $orders = Order::all();
+        $products = Product::with('category')->get();
+        $totalProducts = $products->count();
 
-        // Total revenue
-        $revenue = $orders->sum('total_price');
+        $customers = User::where('role', 'customer')->get();
+        $totalCustomers = $customers->count();
+
+        $orders = Order::with('customer')->get();
+        $totalOrders = $orders->count();
+        $totalRevenue = $orders->sum('total_amount');
+
+        $lowStock = Product::where('quantity', '<=', 5)->get();
+        $recentOrders = Order::latest()->take(5)->get();
 
         return view('admin.dashboard', compact(
-            'products',
-            'customers',
-            'orders',
-            'revenue'
+            'products', 'totalProducts',
+            'customers', 'totalCustomers',
+            'orders', 'totalOrders', 'totalRevenue',
+            'lowStock', 'recentOrders'
         ));
     }
 
-    // ================= SHOW ADD PRODUCT PAGE =================
+    // Show add product page
     public function addProductPage()
     {
-        $categories = Product::getAllCategories(); // or Category::all()
+        $categories = Category::all();
         return view('admin.add', compact('categories'));
     }
 
-    // ================= HANDLE ADD PRODUCT =================
+    // Handle add product
     public function addProduct(Request $request)
     {
         $request->validate([
-            'name'        => 'required|string|max:255',
-            'category_id' => 'required|integer',
-            'price'       => 'required|numeric',
-            'quantity'    => 'required|integer',
+            'name' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'price' => 'required|numeric',
+            'quantity' => 'required|integer',
             'description' => 'nullable|string',
-            'image'       => 'nullable|image|mimes:jpg,png,jpeg|max:2048'
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        $imagePath = null;
+        $imagePath = $request->hasFile('image') ? $request->file('image')->store('products', 'public') : null;
 
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')
-                                 ->store('products', 'public');
-        }
-
-        $success = Product::create([
-            'name'        => $request->name,
+        Product::create([
+            'name' => $request->name,
             'category_id' => $request->category_id,
-            'price'       => $request->price,
-            'quantity'    => $request->quantity,
+            'price' => $request->price,
+            'quantity' => $request->quantity,
             'description' => $request->description,
-            'image'       => $imagePath
+            'image' => $imagePath
         ]);
 
-        if ($success) {
-            Session::flash('message', 'Product added successfully!');
-        } else {
-            Session::flash('error', 'Failed to add product.');
-        }
-
+        Session::flash('message', 'Product added successfully!');
         return redirect()->route('admin.add.form');
     }
 }

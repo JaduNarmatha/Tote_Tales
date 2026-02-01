@@ -1,23 +1,33 @@
-// database/migrations/xxxx_xx_xx_create_carts_table.php
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+<?php
 
-return new class extends Migration
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Cart extends Model
 {
-    public function up(): void
+    use HasFactory;
+
+    protected $fillable = [
+        'user_id',
+        'product_id',
+        'quantity',
+    ];
+
+    /**
+     * Relationship to User
+     */
+    public function user()
     {
-        Schema::create('carts', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // links to users table
-            $table->foreignId('product_id')->constrained()->onDelete('cascade'); // links to products table
-            $table->integer('quantity')->default(1);
-            $table->timestamps();
-        });
+        return $this->belongsTo(User::class);
     }
 
-    public function down(): void
+    /**
+     * Relationship to Product
+     */
+    public function product()
     {
-        Schema::dropIfExists('carts');
+        return $this->belongsTo(Product::class);
     }
-};
+}

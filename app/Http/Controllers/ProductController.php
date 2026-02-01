@@ -2,97 +2,81 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Session;
 
 class ProductController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth'); // protect routes
+    // List all products
+    public function index() {
+        $products = Product::with('category')->latest()->get();
+        $lowStock = Product::where('quantity', '<=', 5)->get();
+        return view('admin.products.index', compact('products', 'lowStock'));
     }
 
-    // ================= CREATE PRODUCT =================
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name'        => 'required|string|max:255',
-            'category_id' => 'required|integer',
-            'price'       => 'required|numeric',
-            'quantity'    => 'required|integer',
-            'image'       => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
-        ]);
-
-        $imagePath = null;
-
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')
-                                 ->store('products', 'public');
-        }
-
-        Product::create([
-            'name'        => $request->name,
-            'category_id' => $request->category_id,
-            'price'       => $request->price,
-            'quantity'    => $request->quantity,
-            'image'       => $imagePath
-        ]);
-
-        Session::flash('flash', 'Product added successfully!');
-
-        return redirect()->route('products.index');
+    // Show create form
+    public function create() {
+        $categories = Category::all();
+        return view('admin.products.create', compact('categories'));
     }
 
-    // ================= UPDATE PRODUCT =================
-    public function update(Request $request, $id)
-    {
-        $product = Product::findOrFail($id);
-
-        $request->validate([
-            'name'        => 'required|string|max:255',
-            'category_id' => 'required|integer',
-            'price'       => 'required|numeric',
-            'quantity'    => 'required|integer',
-            'image'       => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
+    // Store new product
+    public function store(Request $request) {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'price' => 'required|numeric|min:0',
+            'quantity' => 'required|integer|min:0',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
-        if ($request->hasFile('image')) {
-            // delete old image
-            if ($product->image) {
-                Storage::disk('public')->delete($product->image);
-            }
-
-            $product->image = $request->file('image')
-                                      ->store('products', 'public');
+        if($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('products', 'public');
         }
 
-        $product->update([
-            'name'        => $request->name,
-            'category_id' => $request->category_id,
-            'price'       => $request->price,
-            'quantity'    => $request->quantity
-        ]);
+        Product::create($data);
 
-        Session::flash('flash', 'Product updated successfully!');
-
-        return redirect()->route('products.index');
+        Session::flash('success', 'Product added successfully!');
+        return redirect()->route('admin.products.index');
     }
 
-    // ================= DELETE PRODUCT =================
-    public function destroy($id)
-    {
-        $product = Product::findOrFail($id);
+    // Show edit form
+    public function edit(Product $product) {
+        $categories = Category::all();
+        return view('admin.products.edit', compact('product', 'categories'));
+    }
 
-        if ($product->image) {
-            Storage::disk('public')->delete($product->image);
+    // Update product
+    public function update(Request $request, Product $product) {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'price' => 'required|numeric|min:0',
+            'quantity' => 'required|integer|min:0',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
+        ]);
+
+        if($request->hasFile('image')) {
+            if($product->image) Storage::disk('public')->delete($product->image);
+            $data['image'] = $request->file('image')->store('products', 'public');
         }
 
+        $product->update($data);
+
+        Session::flash('success', 'Product updated successfully!');
+        return redirect()->route('admin.products.index');
+    }
+
+    // Delete product
+    public function destroy(Product $product) {
+        if($product->image) Storage::disk('public')->delete($product->image);
         $product->delete();
 
-        Session::flash('flash', 'Product deleted successfully!');
-
-        return redirect()->route('products.index');
+        Session::flash('success', 'Product deleted successfully!');
+        return redirect()->route('admin.products.index');
     }
 }
