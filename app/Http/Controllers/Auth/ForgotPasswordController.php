@@ -8,7 +8,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class ForgotPasswordController extends Controller
-{
+{ /**
+     * Show forgot password page
+     */
+    public function create()
+    {
+        return view('auth.forgot-password');
+    }
+
+    /**
+     * Handle password reset link request
+     */
     public function update(Request $request)
     {
         $request->validate([

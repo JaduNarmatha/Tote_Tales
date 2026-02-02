@@ -8,45 +8,53 @@ use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
+    public function __construct()
+    {
+        // Guests only can access login form
+       // $this->middleware('guest')->except('logout');
+    }
+
     // Show login form
     public function create()
     {
-        return view('auth.login'); // make sure this blade exists
+        return view('auth.login'); // resources/views/auth/login.blade.php
     }
 
     // Handle login
-    public function login(Request $request)
-    {
-        $request->validate([
-            'email'    => 'required|email',
-            'password' => 'required',
+public function login(Request $request)
+{
+    $request->validate([
+        'email'    => ['required', 'email'],
+        'password' => ['required'],
+    ]);
+
+    if (!Auth::attempt($request->only('email', 'password'))) {
+        return back()->withErrors([
+            'email' => 'Invalid email or password',
         ]);
-
-        $credentials = $request->only('email', 'password');
-
-        if (!Auth::attempt($credentials)) {
-            return redirect()->back()->withErrors(['email' => 'Invalid credentials'])->withInput();
-        }
-
-        $request->session()->regenerate();
-
-        $user = Auth::user();
-
-        // Redirect based on role
-        if ($user->role === 'admin') {
-            return redirect()->route('admin.dashboard');
-        } else {
-            return redirect()->route('home');
-        }
     }
+
+    $request->session()->regenerate();
+
+    $user = Auth::user();
+
+    // ✅ ROLE BASED REDIRECT
+    if ($user->role === 'admin') {
+        return redirect()->route('admin.dashboard');
+    }
+
+    return redirect()->route('home'); // customer
+}
+
 
     // Handle logout
     public function logout(Request $request)
     {
         Auth::logout();
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login');
+        return redirect()->route('login');
     }
 }

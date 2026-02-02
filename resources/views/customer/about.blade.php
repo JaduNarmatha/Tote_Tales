@@ -1,9 +1,11 @@
 {{-- resources/views/customer/about.blade.php --}}
+@vite(['resources/css/app.css', 'resources/js/app.js'])
 @extends('layouts.app') {{-- Optional: if you have a layout --}}
 
 @section('title', 'Tote_Tales | Our Story')
 
 @section('content')
+@vite(['resources/css/app.css', 'resources/js/app.js'])
 <body class="bg-white text-gray-800 font-sans overflow-x-hidden">
 
 <!-- Navbar -->

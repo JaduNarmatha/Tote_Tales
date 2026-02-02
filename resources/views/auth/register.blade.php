@@ -1,16 +1,14 @@
+{{-- resources/views/auth/register.blade.php --}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Register - Tote_Tales</title>
 
-     {{-- Tailwind CSS --}}
-    <link rel="stylesheet" href="{{ asset('src/output.css') }}">
-</head>
- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="{{ asset('css/output.css') }}">
+    {{-- Tailwind CSS --}}
+    <link rel="stylesheet" href="{{ asset('css/output.css') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
+</head>
 <body class="bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 flex items-center justify-center min-h-screen">
 
     <div class="bg-white bg-opacity-90 p-10 rounded-3xl shadow-2xl w-96 transform hover:scale-105 transition duration-500">
@@ -68,6 +66,13 @@
                 type="password"
                 name="password"
                 placeholder="Password"
+                required
+                class="w-full p-3 border-2 border-green-400 rounded-xl focus:border-green-600 focus:ring-2 focus:ring-green-300 transition duration-300">
+
+            <input
+                type="password"
+                name="password_confirmation"
+                placeholder="Confirm Password"
                 required
                 class="w-full p-3 border-2 border-green-400 rounded-xl focus:border-green-600 focus:ring-2 focus:ring-green-300 transition duration-300">
 

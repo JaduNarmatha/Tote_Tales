@@ -5,68 +5,81 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
-use App\Models\User;
 use App\Models\Order;
-use App\Models\OrderItem;
-use Illuminate\Support\Facades\Session;
+use App\Models\User;
 
 class AdminController extends Controller
 {
     // Dashboard
     public function dashboard()
     {
-        $products = Product::with('category')->get();
-        $totalProducts = $products->count();
+        $totalOrders    = Order::count();
+        $totalRevenue   = Order::sum('total_price');
+        $totalProducts  = Product::count();
+        $totalCustomers = User::where('role', 'customer')->count();
 
-        $customers = User::where('role', 'customer')->get();
-        $totalCustomers = $customers->count();
-
-        $orders = Order::with('customer')->get();
-        $totalOrders = $orders->count();
-        $totalRevenue = $orders->sum('total_amount');
-
-        $lowStock = Product::where('quantity', '<=', 5)->get();
-        $recentOrders = Order::latest()->take(5)->get();
+        // Low stock removed
+        $recentOrders   = Order::orderBy('created_at', 'desc')->take(5)->get();
+        $products       = Product::with('category')->get();
+        $categories     = Category::all();
 
         return view('admin.dashboard', compact(
-            'products', 'totalProducts',
-            'customers', 'totalCustomers',
-            'orders', 'totalOrders', 'totalRevenue',
-            'lowStock', 'recentOrders'
+            'totalOrders', 'totalRevenue', 'totalProducts', 'totalCustomers',
+            'recentOrders', 'products', 'categories'
         ));
     }
 
-    // Show add product page
-    public function addProductPage()
+    // Products page
+    public function productsPage()
     {
-        $categories = Category::all();
-        return view('admin.add', compact('categories'));
+        $products = Product::with('category')->get(); 
+        $categories = Category::all();                
+        return view('admin.products', compact('products', 'categories'));
     }
 
-    // Handle add product
-    public function addProduct(Request $request)
+    // Add product
+    public function storeProduct(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name'        => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            'price' => 'required|numeric',
-            'quantity' => 'required|integer',
-            'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'price'       => 'required|numeric|min:0',
         ]);
 
-        $imagePath = $request->hasFile('image') ? $request->file('image')->store('products', 'public') : null;
+        Product::create($request->only(['name', 'category_id', 'price']));
 
-        Product::create([
-            'name' => $request->name,
-            'category_id' => $request->category_id,
-            'price' => $request->price,
-            'quantity' => $request->quantity,
-            'description' => $request->description,
-            'image' => $imagePath
+        return redirect()->route('admin.dashboard')->with('success', 'Product added successfully!');
+    }
+
+    // Edit product
+    public function editProduct($id)
+    {
+        $product = Product::findOrFail($id);
+        $categories = Category::all();
+        return view('admin.edit-product', compact('product', 'categories'));
+    }
+
+    // Update product
+    public function updateProduct(Request $request, $id)
+    {
+        $request->validate([
+            'name'        => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'price'       => 'required|numeric|min:0',
         ]);
 
-        Session::flash('message', 'Product added successfully!');
-        return redirect()->route('admin.add.form');
+        $product = Product::findOrFail($id);
+        $product->update($request->only(['name', 'category_id', 'price']));
+
+        return redirect()->route('admin.dashboard')->with('success', 'Product updated successfully!');
+    }
+
+    // Delete product
+    public function deleteProduct($id)
+    {
+        $product = Product::findOrFail($id);
+        $product->delete();
+
+        return redirect()->route('admin.dashboard')->with('success', 'Product deleted successfully!');
     }
 }

@@ -2,61 +2,100 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ProductController;
+use App\Http\Controllers\Api\ProductController;
 
+/*
+|--------------------------------------------------------------------------
+| Public API Routes (No Authentication)
+|--------------------------------------------------------------------------
+|
+| Accessible without authentication: health check, product listing, register/login.
+|
+*/
 
-// Auth
-Route::post('/login', [AuthController::class, 'login']);
-
-// Protected routes
-Route::middleware('auth:sanctum')->group(function () {
-
-    Route::post('/logout', [AuthController::class, 'logout']);
-
-    // 👑 Admin API
-    Route::middleware('api.admin')->get('/admin/dashboard', function () {
-        return response()->json([
-            'message' => 'Welcome Admin Dashboard'
-        ]);
-    });
-
-    // 👤 Customer API
-    Route::middleware('api.customer')->get('/customer/home', function () {
-        return response()->json([
-            'message' => 'Welcome Customer Home'
-        ]);
-    });
+// API health check
+Route::get('/test', function () {
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Tote_Tales API is running'
+    ]);
 });
+
+// Authentication
+Route::post('/register', [AuthController::class, 'register']); // Customer registration
+Route::post('/login', [AuthController::class, 'login']);       // Admin & Customer login
+
+// Public product access (Customer / Category page)
+Route::get('/products', [ProductController::class, 'index']);
+Route::get('/products/{product}', [ProductController::class, 'show']);
 
 
 /*
 |--------------------------------------------------------------------------
-| API Routes
+| Protected API Routes (Laravel Sanctum)
 |--------------------------------------------------------------------------
-| These routes are loaded by the RouteServiceProvider and are prefixed
-| with /api. They are intended for the Tote_Tales application.
+|
+| Requires authentication via Sanctum.
 |
 */
-
-// Test route to check API status
-Route::get('/test', function () {
-    return response()->json([
-        'message' => 'API is working'
-    ]);
-});
-Route::post('/register', [AuthController::class, 'register']);
-
-
-// Authentication routes
-Route::post('/login', [AuthController::class, 'login']);
-
-// Protected routes (requires authentication)
 Route::middleware('auth:sanctum')->group(function () {
 
-    // Logout
+    // Logout (Admin & Customer)
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    // Product CRUD (Tote_Tales products)
-    Route::apiResource('products', ProductController::class);
 
+    /*
+    |--------------------------------------------------------------------------
+    | Admin API Routes (Admin Only)
+    |--------------------------------------------------------------------------
+    | Prefix: /admin
+    | Middleware: auth:sanctum + api.admin
+    */
+    Route::middleware('api.admin')->prefix('admin')->group(function () {
+
+        // Admin dashboard stats
+        Route::get('/dashboard', [ProductController::class, 'dashboard']);
+
+        // Product CRUD
+        Route::post('/products', [ProductController::class, 'store']);           // CREATE
+        Route::put('/products/{product}', [ProductController::class, 'update']); // UPDATE
+        Route::delete('/products/{product}', [ProductController::class, 'destroy']); // DELETE
+
+        // Low stock products
+        Route::get('/products-low-stock', [ProductController::class, 'lowStock']);
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Customer API Routes (Customer Only)
+    |--------------------------------------------------------------------------
+    | Prefix: /customer
+    | Middleware: auth:sanctum + api.customer
+    */
+    Route::middleware('api.customer')->prefix('customer')->group(function () {
+
+        // Customer home
+        Route::get('/home', function () {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Welcome Customer Home'
+            ]);
+        });
+
+        // Cart routes
+        Route::post('/cart/add/{product}', [ProductController::class, 'addToCart']);
+        Route::post('/cart/update/{product}', [ProductController::class, 'updateCart']);
+        Route::post('/cart/remove/{product}', [ProductController::class, 'removeFromCart']);
+        Route::post('/cart/clear', [ProductController::class, 'clearCart']);
+    });
+    
+
+
+    
 });
+
+Route::get('/admin/products', [ProductController::class, 'index']);
+Route::post('/admin/products', [ProductController::class, 'store']);
+Route::delete('/admin/products/{id}', [ProductController::class, 'destroy']);
+Route::post('/admin/products/{id}/purchase', [ProductController::class, 'purchase']);

@@ -12,7 +12,7 @@ class Order extends Model
     protected $fillable = [
         'customer_id',
         'total_amount',
-        'status'
+        'status',
     ];
 
     public function items()
@@ -22,6 +22,6 @@ class Order extends Model
 
     public function customer()
     {
-        return $this->belongsTo(User::class, 'customer_id');
+        return $this->belongsTo(\App\Models\User::class, 'customer_id');
     }
 }

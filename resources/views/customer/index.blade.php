@@ -2,7 +2,18 @@
 @extends('layouts.app')
 
 @section('title', 'Tote_Tales - Carry Your Story')
-
+@vite(['resources/css/app.css', 'resources/js/app.js'])
+<!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.bunny.net">
+        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-jQnXlP+dnSvMifbsIh6gQhX7qQ0Jjq8kgQzpLq4eFVlMPG/6ClFQH5h4+clM0qPnhPR5fW8pGtvwzocSU+J+Ug==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+ 
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer" />
 @section('content')
 <body class="bg-gray-50 font-sans">
 
@@ -13,7 +24,7 @@
     <nav class="flex space-x-6 text-gray-700 font-medium">
       <a href="{{ route('welcome') }}" class="hover:text-orange-600 transition-colors">Home</a>
       <a href="{{ route('about') }}" class="hover:text-orange-600 transition-colors">About</a>
- <a href="{{ route('categories.index') }}" class="hover:text-orange-500">Collection</a>
+
 
 
  <a href="{{ route('contact') }}" class="hover:text-orange-600 transition-colors">Contact</a>
@@ -119,4 +130,4 @@
       <ul class="space-y-1">
         <li><a href="{{ route('welcome') }}" class="hover:text-orange-500 transition-colors">Home</a></li>
         <li><a href="{{ route('about') }}" class="hover:text-orange-500 transition-colors">About Us</a></li>
-        <li><a href="{{ route('categories.index') }}" class="hover:text
+        

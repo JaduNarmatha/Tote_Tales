@@ -11,10 +11,9 @@ class Kernel extends HttpKernel
      * These run on every request.
      */
     protected $middleware = [
+
         // Handle trusted proxies
         \App\Http\Middleware\TrustProxies::class,
-
-        
 
         // Prevent requests during maintenance
         \App\Http\Middleware\PreventRequestsDuringMaintenance::class,
@@ -33,27 +32,20 @@ class Kernel extends HttpKernel
      * Middleware groups.
      */
     protected $middlewareGroups = [
+
         'web' => [
-            // Encrypt cookies
             \App\Http\Middleware\EncryptCookies::class,
-
-            // Add cookies to response
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-
-            // Start session
             \Illuminate\Session\Middleware\StartSession::class,
-
-            // Share validation errors to views
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-
-            // CSRF protection
             \App\Http\Middleware\VerifyCsrfToken::class,
-
-            // Route model binding
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
 
         'api' => [
+            // Required for Sanctum API authentication
+            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+
             'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
@@ -61,14 +53,19 @@ class Kernel extends HttpKernel
 
     /**
      * Route middleware.
-     * Apply these individually to routes.
      */
     protected $routeMiddleware = [
-        'auth' => \App\Http\Middleware\Authenticate::class,       // Check if user is logged in
-        'admin' => \App\Http\Middleware\AdminMiddleware::class,  // Check if user is admin
-        'customer' => \App\Http\Middleware\ApiCustomerMiddleware::class, // Customer-specific API middleware
+
+        // Authentication
+        'auth' => \App\Http\Middleware\Authenticate::class,
+        'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+
+        // Role-based access
+        'api.admin' => \App\Http\Middleware\AdminMiddleware::class,
+        'api.customer' => \App\Http\Middleware\ApiCustomerMiddleware::class,
+
+        // Security & utilities
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
     ];
-    
 }
