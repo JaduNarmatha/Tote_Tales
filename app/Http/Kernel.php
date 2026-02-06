@@ -8,23 +8,12 @@ class Kernel extends HttpKernel
 {
     /**
      * Global HTTP middleware stack.
-     * These run on every request.
      */
     protected $middleware = [
-
-        // Handle trusted proxies
         \App\Http\Middleware\TrustProxies::class,
-
-        // Prevent requests during maintenance
         \App\Http\Middleware\PreventRequestsDuringMaintenance::class,
-
-        // Validate max POST size
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
-
-        // Trim strings from request inputs
         \App\Http\Middleware\TrimStrings::class,
-
-        // Convert empty strings to null
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
     ];
 
@@ -43,9 +32,7 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            // Required for Sanctum API authentication
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-
             'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
@@ -61,10 +48,9 @@ class Kernel extends HttpKernel
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
 
         // Role-based access
-        'api.admin' => \App\Http\Middleware\AdminMiddleware::class,
-        'api.customer' => \App\Http\Middleware\ApiCustomerMiddleware::class,
+        'admin' => \App\Http\Middleware\AdminMiddleware::class,
 
-        // Security & utilities
+        // Security
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
     ];

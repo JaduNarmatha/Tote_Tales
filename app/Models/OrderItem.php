@@ -25,4 +25,5 @@ class OrderItem extends Model
     {
         return $this->belongsTo(\App\Models\Product::class);
     }
+    
 }

@@ -54,4 +54,18 @@ class Product extends Model
     {
         return $this->quantity == 0;
     }
+    // Relationships
+   
+
+    public function cartItems()
+    {
+        return $this->hasMany(Cart::class);
+    }
+
+    public function wishlistItems()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
+    
 }

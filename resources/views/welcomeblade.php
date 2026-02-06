@@ -25,7 +25,7 @@
 
     <!-- Logo -->
     <div class="mb-4">
-      < src="{{ asset('/logo.png') }}" alt="Tote_Tales Logo" class="mx-auto w-20 h-20">
+      <img src="{{ asset('img/logo.png') }}" alt="Tote_Tales Logo" class="mx-auto w-20 h-20">
     </div>
   </div>
 

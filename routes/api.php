@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\HomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,6 +44,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // Logout (Admin & Customer)
     Route::post('/logout', [AuthController::class, 'logout']);
 
+// Authenticated Home route for customers
+Route::middleware(['auth'])->group(function () {
+    Route::get('/home', [HomeController::class, 'index'])->name('home');
+});
 
     /*
     |--------------------------------------------------------------------------

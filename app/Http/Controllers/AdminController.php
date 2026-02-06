@@ -12,22 +12,21 @@ class AdminController extends Controller
 {
     // Dashboard
     public function dashboard()
-    {
-        $totalOrders    = Order::count();
-        $totalRevenue   = Order::sum('total_price');
-        $totalProducts  = Product::count();
-        $totalCustomers = User::where('role', 'customer')->count();
+{
+    
+    $totalProducts  = Product::count();
+    $totalCustomers = User::where('role', 'customer')->count();
+    $recentOrders   = Order::latest()->take(5)->get();
+    $products       = Product::with('category')->get();
+    $lowStock       = Product::where('quantity', '<=', 5)->get();
+    $categories     = Category::all(); // if you use this in view
 
-        // Low stock removed
-        $recentOrders   = Order::orderBy('created_at', 'desc')->take(5)->get();
-        $products       = Product::with('category')->get();
-        $categories     = Category::all();
+    return view('admin.dashboard', compact(
+         'totalProducts', 'totalCustomers',
+        'recentOrders', 'products', 'categories', 'lowStock'
+    ));
+}
 
-        return view('admin.dashboard', compact(
-            'totalOrders', 'totalRevenue', 'totalProducts', 'totalCustomers',
-            'recentOrders', 'products', 'categories'
-        ));
-    }
 
     // Products page
     public function productsPage()
@@ -82,4 +81,5 @@ class AdminController extends Controller
 
         return redirect()->route('admin.dashboard')->with('success', 'Product deleted successfully!');
     }
+    
 }

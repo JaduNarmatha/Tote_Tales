@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-     // Register a new user
+    // ======================
+    // Register (API)
+    // ======================
     public function register(Request $request)
     {
         $request->validate([
@@ -33,8 +35,10 @@ class AuthController extends Controller
         ], 201);
     }
 
-    // Login and generate token
-    public function login(Request $request)
+    // ======================
+    // Login (API)
+    // ======================
+    public function apiLogin(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
@@ -57,13 +61,31 @@ class AuthController extends Controller
         ]);
     }
 
-    // Logout (revoke tokens)
-    public function logout(Request $request)
-    {
-        $request->user()->tokens()->delete();
+    // ======================
+    // Login (WEB / Blade)
+    // ======================
+   public function login(Request $request)
+{
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
 
-        return response()->json([
-            'message' => 'Logged out successfully'
-        ]);
+    if (!Auth::attempt($request->only('email', 'password'))) {
+        return back()->with('error', 'Invalid login credentials');
     }
+
+    $request->session()->regenerate();
+
+    $user = Auth::user();
+
+    // ✅ Role-based redirect
+    if ($user->role === 'admin') {
+        return redirect()->route('admin.dashboard')
+            ->with('success', 'Welcome Admin!');
+    }
+
+    return redirect()->route('home')
+        ->with('success', 'Welcome back!');
+}
 }
